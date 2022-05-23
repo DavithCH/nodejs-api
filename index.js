@@ -21,7 +21,7 @@ app.get("/taches/:id", (req, res) => {
   }
 });
 
-app.post("/taches", (req, res) => {
+app.post("/tache", (req, res) => {
   const schema = joi.object({
     description: joi.string().min(2).required(),
     faite: joi.boolean().required(),
@@ -40,8 +40,32 @@ app.post("/taches", (req, res) => {
   }
 });
 
+app.post("/taches", (req, res) => {
+  const schema = joi.object({
+    description: joi.string().min(2).required(),
+    faite: joi.boolean().required(),
+  });
+  console.log(req.body);
+  res.send(200);
+  // const value = schema.validate({ description, faite });
+  // if (value.error) {
+  //   return res.send(400, { message: "Bad values" });
+  // } else {
+  //   try {
+  //     db.insertOne({ description, faite });
+  //     res.send(200, { message: "Successfully create new tache" });
+  //   } catch (error) {
+  //     res.send(400, { error: "Failed to create new tache" });
+  //   }
+  // }
+});
+
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, (req, res) => {
-  console.log(`Server is running on port : ${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, (req, res) => {
+    console.log(`Server is running on port : ${PORT}`);
+  });
+}
+
+module.exports = app;

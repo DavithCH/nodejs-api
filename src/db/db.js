@@ -4,6 +4,9 @@ const db = {
   insertOne(obj) {
     this.tacheDb.set(this.id++, obj);
   },
+  insertMany(arrObj) {
+    return arrObj.forEach((obj) => this.tacheDb.set(this.id++, obj));
+  },
   getAll() {
     return Object.fromEntries(this.tacheDb);
   },
