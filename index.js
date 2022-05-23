@@ -94,7 +94,7 @@ app.post("/signup", async (req, res) => {
     const passwordHashed = await bcrypt.hash(account.password, salt);
     account.password = passwordHashed;
     user.insertOne(account);
-    res.send(201, { username: account.username });
+    res.status(201).send({ username: account.username });
   }
 });
 
@@ -121,6 +121,26 @@ app.post("/signin", async (req, res) => {
 
   const token = jwt.sign({ id }, process.env.SECRET_TOKEN);
   res.header("x-auth-token", token).status(200).send({ name: account.name });
+});
+
+function authGuard(req, res, next) {
+  const token = req.header("x-auth-token");
+  if (!token)
+    return res.status(401).json({ erreur: "Vous devez vous connecter" });
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET_TOKEN);
+    req.user = decoded;
+    next();
+  } catch (exc) {
+    return res.status(400).json({ erreur: "Token Invalide" });
+  }
+}
+
+app.get("/user/profile/:id", [authGuard], (req, res) => {
+  console.log(here);
+  const user = user.getOne(parseInt(req.params.id));
+  delete user.password;
+  res.status(200).send(user);
 });
 
 app.use(myErrorMiddleware);

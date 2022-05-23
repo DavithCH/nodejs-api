@@ -8,6 +8,9 @@ const user = {
   getAll() {
     return Object.fromEntries(this.userCollection);
   },
+  getOne(id) {
+    return this.userCollection.get(id);
+  },
   findByProperty(propertyName, value) {
     let result = false;
     this.userCollection.forEach((obj, id) => {
