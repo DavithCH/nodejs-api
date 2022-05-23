@@ -20,6 +20,13 @@ const db = {
       throw new Error(`Key ${id} doesn't not exists`);
     }
   },
+  updateOne(id, obj) {
+    if (this.exists(id)) {
+      this.tacheDb.set(id, obj);
+    } else {
+      throw new Error(`Key ${id} doesn't not exists`);
+    }
+  },
 };
 
 db.insertOne({
