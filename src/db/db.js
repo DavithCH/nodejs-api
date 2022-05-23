@@ -7,6 +7,16 @@ const db = {
   getAll() {
     return Object.fromEntries(this.tacheDb);
   },
+  exists: function (id) {
+    return this.tacheDb.has(id);
+  },
+  getOne(id) {
+    if (this.exists(id)) {
+      return this.tacheDb.get(id);
+    } else {
+      throw new Error(`Key ${id} doesn't not exists`);
+    }
+  },
 };
 
 db.insertOne({
