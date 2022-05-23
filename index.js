@@ -130,6 +130,7 @@ function authGuard(req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.SECRET_TOKEN);
     req.user = decoded;
+    console.log("here", req.user);
     next();
   } catch (exc) {
     return res.status(400).json({ erreur: "Token Invalide" });
@@ -137,10 +138,9 @@ function authGuard(req, res, next) {
 }
 
 app.get("/user/profile/:id", [authGuard], (req, res) => {
-  console.log(here);
-  const user = user.getOne(parseInt(req.params.id));
-  delete user.password;
-  res.status(200).send(user);
+  const connectedUser = user.getOne(req.params.id);
+  delete connectedUser.password;
+  res.status(200).send(connectedUser);
 });
 
 app.use(myErrorMiddleware);
