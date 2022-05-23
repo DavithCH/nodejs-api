@@ -3,6 +3,14 @@ const app = express();
 const db = require("./src/db/db");
 require("dotenv").config();
 const joi = require("joi");
+const jwt = require("jsonwebtoken");
+const user = require("./src/db/user");
+const bcrypt = require("bcrypt");
+
+if (!process.env.SECRET_TOKEN) {
+  console.error("ERROR: Une variable d'environnement SECRET_JWT doit existée");
+  process.exit(1);
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -24,25 +32,6 @@ app.get("/taches/:id", (req, res) => {
     throw new Error();
   }
 });
-
-// app.post("/tache", (req, res) => {
-//   const schema = joi.object({
-//     description: joi.string().min(2).required(),
-//     faite: joi.boolean().required(),
-//   });
-//   let { description, faite } = req.body;
-//   const value = schema.validate({ description, faite });
-//   if (value.error) {
-//     return res.send(400, { message: "Bad values" });
-//   } else {
-//     try {
-//       db.insertOne({ description, faite });
-//       res.send(200, { message: "Successfully create new tache" });
-//     } catch (error) {
-//       res.send(400, { error: "Failed to create new tache" });
-//     }
-//   }
-// });
 
 app.post("/taches", async (req, res) => {
   const schema = joi.array().items(
@@ -84,6 +73,29 @@ app.delete("/taches/:id", async (req, res) => {
   if (!id) res.send(404);
   await db.deleteOne(id);
   res.send(200, { message: "Successfully delete tache" });
+});
+
+app.get("/users", async (req, res) => {
+  return res.send(200, user.getAll());
+});
+
+app.post("/signup", async (req, res) => {
+  const schema = joi.object({
+    username: joi.string().min(3).max(50).required(),
+    email: joi.string().email().required(),
+    password: joi.string().min(3).max(50).required(),
+  });
+
+  const { value, error } = schema.validate(req.body);
+  if (error) res.status(400).send({ erreur: error.details[0].message });
+  else {
+    const account = value;
+    const salt = await bcrypt.genSalt(15);
+    const passwordHashed = await bcrypt.hash(account.password, salt);
+    account.password = passwordHashed;
+    user.insertOne(account);
+    res.send(201, { username: account.username });
+  }
 });
 
 app.use(myErrorMiddleware);
