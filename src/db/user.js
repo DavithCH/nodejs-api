@@ -8,6 +8,17 @@ const user = {
   getAll() {
     return Object.fromEntries(this.userCollection);
   },
+  findByProperty(propertyName, value) {
+    let result = false;
+    this.userCollection.forEach((obj, id) => {
+      if (!result) {
+        if (propertyName in obj && obj[propertyName] === value) {
+          result = { id: id, found: obj };
+        }
+      }
+    });
+    return result || {};
+  },
 };
 
 user.insertOne({

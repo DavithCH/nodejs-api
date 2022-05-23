@@ -98,6 +98,31 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+app.post("/signin", async (req, res) => {
+  const payload = req.body;
+  const schema = joi.object({
+    email: joi.string().max(255).required().email(),
+    password: joi.string().min(3).max(50).required(),
+  });
+
+  const { value: connexion, error } = schema.validate(payload);
+
+  if (error) return res.status(400).send({ erreur: error.details[0].message });
+
+  const { id, found: account } = user.findByProperty("email", connexion.email);
+  if (!account) return res.status(400).send({ erreur: "Email Invalide" });
+
+  const passwordIsValid = await bcrypt.compare(
+    req.body.password,
+    account.password
+  );
+  if (!passwordIsValid)
+    return res.status(400).send({ erreur: "Mot de Passe Invalide" });
+
+  const token = jwt.sign({ id }, process.env.SECRET_TOKEN);
+  res.header("x-auth-token", token).status(200).send({ name: account.name });
+});
+
 app.use(myErrorMiddleware);
 
 const PORT = process.env.PORT || 3000;
