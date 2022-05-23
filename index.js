@@ -79,6 +79,13 @@ app.put("/taches/:id", async (req, res) => {
   }
 });
 
+app.delete("/taches/:id", async (req, res) => {
+  let id = parseInt(req.params.id);
+  if (!id) res.send(404);
+  await db.deleteOne(id);
+  res.send(200, { message: "Successfully delete tache" });
+});
+
 app.use(myErrorMiddleware);
 
 const PORT = process.env.PORT || 3000;

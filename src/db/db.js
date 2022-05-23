@@ -27,6 +27,13 @@ const db = {
       throw new Error(`Key ${id} doesn't not exists`);
     }
   },
+  deleteOne(id) {
+    if (this.exists(id)) {
+      this.tacheDb.delete(id);
+    } else {
+      throw new Error(`Key ${id} doesn't not exists`);
+    }
+  },
 };
 
 db.insertOne({
